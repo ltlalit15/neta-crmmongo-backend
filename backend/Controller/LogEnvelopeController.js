@@ -24,3 +24,11 @@ const logEnvelope = asyncHandler(async (req, res) => {
     data: log,
   });
 });
+
+
+
+module.exports = {
+  logEnvelope
+  
+};
+
