@@ -86,7 +86,7 @@ const sendProposalForSignature = asyncHandler(async (req, res) => {
 
   // ✅ Log envelope
   try {
-    await axios.post("https://hrb5wx2v-8000.inc1.devtunnels.ms/api/LogEnvelope", {
+    await axios.post("https://neta-crmmongo-backend-production.up.railway.app/api/LogEnvelope", {
       client_id: null,
       email: signer_email,
       envelope_id: result.envelopeId,
@@ -99,7 +99,7 @@ const sendProposalForSignature = asyncHandler(async (req, res) => {
 
   // ✅ Send email notification
   try {
-    await axios.post("https://hrb5wx2v-8000.inc1.devtunnels.ms/api/sendProposalEmail", {
+    await axios.post("https://neta-crmmongo-backend-production.up.railway.app/api/sendProposalEmail", {
       email: signer_email,
       subject: email_subject,
       message: email_message,
