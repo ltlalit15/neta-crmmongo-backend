@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
-
+ 
+const EnvelopeLog = require("../Model/SendProposalModel")
 
 const logEnvelope = asyncHandler(async (req, res) => {
   const { client_id, email, envelope_id, status, sent_at } = req.body;
@@ -14,7 +15,7 @@ const logEnvelope = asyncHandler(async (req, res) => {
   //   return errorResponse(res, 404, "Client not found");
   // }
 
-  const log = await EnvelopeLogTable.create({
+  const log = await EnvelopeLog.create({
     client_id,
     email,
     envelope_id,
