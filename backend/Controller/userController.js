@@ -115,7 +115,7 @@ const loginUser = async (req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 
-  res.status(body)
+ // res.status(body)
 };
 
 // ✅ Email Function
