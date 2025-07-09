@@ -6,6 +6,7 @@ const cloudinary = require("../Config/cloudinary.js");
 //const { sendEmail } = require("../utils/sendEmail.js");
 const { getJWTToken, apiClient } = require("../utils/docusignAuth.js");
 const EnvelopeLog = require("../Model/SendProposalModel.js");
+const Projects = require("../../Model/Admin/ProjectsModel");
 
 // ✅ Send Proposal for Signature
 const sendProposalForSignature = asyncHandler(async (req, res) => {
@@ -13,6 +14,12 @@ const sendProposalForSignature = asyncHandler(async (req, res) => {
 
   if (!email) {
     return res.status(400).json({ success: false, message: "Client email is required" });
+  }
+
+  // ✅ Step 2: Find Project by ID
+  const project = await Projects.findById(project_id);
+  if (!project) {
+    return res.status(404).json({ success: false, message: "Project not found" });
   }
 
   const signer_email = email.trim().toLowerCase();
