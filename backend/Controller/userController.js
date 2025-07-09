@@ -85,7 +85,6 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     if (!email || !password) {
       return res.status(400).json({ status: false, message: 'Email and password are required' });
     }
@@ -115,6 +114,8 @@ const loginUser = async (req, res) => {
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
   }
+
+  res.status(body)
 };
 
 // ✅ Email Function
