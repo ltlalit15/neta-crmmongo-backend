@@ -16,10 +16,20 @@ const sendProposalForSignature = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, message: "Client email is required" });
   }
 
-  // ✅ Step 2: Find Project by ID
-  const project = await Projects.findById(project_id);
-  if (!project) {
-    return res.status(404).json({ success: false, message: "Project not found" });
+  let validProjectId = null;
+
+  // ✅ Step 2: Try to find Project only if project_id is provided
+  if (project_id) {
+    try {
+      const project = await Projects.findById(project_id);
+      if (project) {
+        validProjectId = project._id;
+      } else {
+        console.warn("⚠️ Project not found, proceeding without project_id.");
+      }
+    } catch (err) {
+      console.warn("⚠️ Invalid project_id format, proceeding without project_id.");
+    }
   }
 
   const signer_email = email.trim().toLowerCase();
@@ -95,7 +105,7 @@ const sendProposalForSignature = asyncHandler(async (req, res) => {
   try {
     await axios.post("https://neta-crmmongo-backend-production.up.railway.app/api/LogEnvelope", {
       client_id: null,
-      project_id: project_id || null,
+      project_id: validProjectId,
       email: signer_email,
       envelope_id: result.envelopeId,
       status: "sent",
@@ -121,6 +131,7 @@ const sendProposalForSignature = asyncHandler(async (req, res) => {
     message: "Proposal sent for signature",
     envelopeId: result.envelopeId,
     docusign_status: "sent",
+    project_id: validProjectId || null,
   });
 });
 
