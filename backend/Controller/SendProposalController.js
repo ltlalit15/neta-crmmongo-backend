@@ -6,7 +6,7 @@ const cloudinary = require("../Config/cloudinary.js");
 //const { sendEmail } = require("../utils/sendEmail.js");
 const { getJWTToken, apiClient } = require("../utils/docusignAuth.js");
 const EnvelopeLog = require("../Model/SendProposalModel.js");
-const Projects = require("../../Model/Admin/ProjectsModel");
+const Projects = require("../Model/Admin/ProjectsModel.js")
 
 // ✅ Send Proposal for Signature
 const sendProposalForSignature = asyncHandler(async (req, res) => {
