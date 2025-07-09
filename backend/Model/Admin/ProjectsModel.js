@@ -79,6 +79,10 @@ const ProjectsSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  tempPoles: {
+    type: String,
+    required: true,
+  },
   // totalTime :{
   //   type:String,
   //   require:true
