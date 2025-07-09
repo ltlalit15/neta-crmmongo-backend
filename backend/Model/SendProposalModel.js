@@ -10,7 +10,7 @@ const envelopeLogSchema = new mongoose.Schema({
    project_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Projects",
-    default: null,
+   // default: null,
   },
   email: {
     type: String,
