@@ -9,27 +9,30 @@ const logEnvelope = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, message: "Missing required fields" });
   }
 
-  
-  // ✅ Optional: Check if project_id is valid and exists
-  let project = null;
+  let validProjectId = null;
+
+  // ✅ Try to validate project_id if provided
   if (project_id) {
     try {
-      project = await Projects.findById(project_id);
-      if (!project) {
-        return res.status(404).json({ success: false, message: "Project not found" });
+      const project = await Projects.findById(project_id);
+      if (project) {
+        validProjectId = project._id;
+      } else {
+        console.warn("⚠️ Project ID not found, saving log without project reference.");
       }
     } catch (err) {
-      return res.status(400).json({ success: false, message: "Invalid project_id" });
+      console.warn("⚠️ Invalid Project ID format, saving log without project reference.");
     }
   }
 
+  // ✅ Save Envelope Log
   const log = await EnvelopeLog.create({
     client_id,
-    project_id: project ? project._id : null,
+    project_id: validProjectId, // either valid _id or null
     email,
     envelope_id,
     status: status || "sent",
-    sent_at: sent_at || new Date().toISOString(),
+    sent_at: sent_at ? new Date(sent_at) : new Date(),
   });
 
   console.log("📥 Envelope Log saved:", log);
