@@ -24,6 +24,7 @@ const createProjects = asyncHandler(async (req, res) => {
     projectRequirements,
     budgetAmount,
     currency,
+    tempPoles,
   } = req.body;
 
   try {
@@ -52,6 +53,7 @@ const createProjects = asyncHandler(async (req, res) => {
       projectRequirements,
       budgetAmount,
       currency,
+      tempPoles,
     });
 
     const savedAssignment = await newAssignment.save();
@@ -101,10 +103,7 @@ const getAllProjects = async (req, res) => {
   }
 };
 
-  
-
-
-       //GET SINGLE DeleteProjects
+//GET SINGLE DeleteProjects
   //METHOD:DELETE
   const deleteProjects = async (req, res) => {
     let deleteProjectsID = req.params.id
@@ -132,6 +131,7 @@ const getAllProjects = async (req, res) => {
         'projectRequirements',
         'budgetAmount',
         'currency',
+        'tempPoles',
       ];
       const updateData = {};
       allowedFields.forEach(field => {
