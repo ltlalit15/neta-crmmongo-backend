@@ -156,7 +156,34 @@ const checkIfSigned = asyncHandler(async (req, res) => {
   });
 });
 
+
+const getEnvelopesByProjectId = asyncHandler(async (req, res) => {
+  const { project_id } = req.params;
+
+  if (!project_id) {
+    return res.status(400).json({ success: false, message: "project_id is required" });
+  }
+
+  try {
+    const envelopes = await EnvelopeLog.find({ project_id });
+
+    if (!envelopes || envelopes.length === 0) {
+      return res.status(404).json({ success: false, message: "No envelopes found for this project." });
+    }
+
+    return res.status(200).json({
+      success: true,
+      total: envelopes.length,
+      data: envelopes,
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+
 module.exports = {
   sendProposalForSignature,
   checkIfSigned,
+  getEnvelopesByProjectId
 };
