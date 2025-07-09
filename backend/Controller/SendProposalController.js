@@ -24,11 +24,21 @@ const sendProposalForSignature = asyncHandler(async (req, res) => {
       const project = await Projects.findById(project_id);
       if (project) {
         validProjectId = project._id;
+        // ✅ Check if proposal already sent for this project
+        const existing = await EnvelopeLog.findOne({ project_id: validProjectId });
+        if (existing) {
+          return res.status(409).json({
+            success: false,
+            message: "Proposal already sent for this project.",
+            envelopeId: existing.envelope_id,
+            sent_at: existing.sent_at,
+          });
+        }
       } else {
-        console.warn("⚠️ Project not found, proceeding without project_id.");
+        console.warn("Project not found, proceeding without project_id.");
       }
     } catch (err) {
-      console.warn("⚠️ Invalid project_id format, proceeding without project_id.");
+      console.warn("Invalid project_id format, proceeding without project_id.");
     }
   }
 
