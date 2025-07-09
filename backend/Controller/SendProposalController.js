@@ -9,7 +9,7 @@ const EnvelopeLog = require("../Model/SendProposalModel.js");
 
 // ✅ Send Proposal for Signature
 const sendProposalForSignature = asyncHandler(async (req, res) => {
-  const { email, name, subject, message } = req.body;
+  const { email, name, subject, message, project_id } = req.body;
 
   if (!email) {
     return res.status(400).json({ success: false, message: "Client email is required" });
@@ -88,6 +88,7 @@ const sendProposalForSignature = asyncHandler(async (req, res) => {
   try {
     await axios.post("https://neta-crmmongo-backend-production.up.railway.app/api/LogEnvelope", {
       client_id: null,
+      project_id: project_id || null,
       email: signer_email,
       envelope_id: result.envelopeId,
       status: "sent",
