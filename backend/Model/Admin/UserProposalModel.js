@@ -5,47 +5,49 @@ const userProposalSchema = new mongoose.Schema({
     proposal: {
         type: String,
         required: true,
+        default: false,
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
-    projects: {
+    'projects&jobs': {
         type: String,
         required: true,
+         default: false,
     },
-    jobs: {
-        type: String,
-        required: true,
-    },
+ 
     tasks: {
         type: String,
         required: true,
+         default: false,
     },
     reports: {
         type: String,
         required: true,
+        default: false,
     },
     user: {
         type: String,
         required: true,
+        default: false
     },
     client: {
         type: String,
         required: true,
+        default: false
     },
-    invoice: {
+    'invoice&billing': {
         type: String,
         required: true,
+        default: false
     },
-    billing: {
-        type: String,
-        required: true,
-    },
+   
     dailylogs: {
         type: String,
         required: true,
+        default: false
     },
 }, {
     timestamps: true,
