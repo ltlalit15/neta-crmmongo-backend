@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 
 // Reusable permission schema
 const permissionSchema = new mongoose.Schema({
-  view: { type: Boolean, default: false },
-  edit: { type: Boolean, default: false },
-  create: { type: Boolean, default: false },
-  delete: { type: Boolean, default: false }
+  view: { type: String, default: false },
+  edit: { type: String, default: false },
+  create: { type: String, default: false },
+  delete: { type: String, default: false }
 }, { _id: false });
 
 const userProposalSchema = new mongoose.Schema({
