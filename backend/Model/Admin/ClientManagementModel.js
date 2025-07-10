@@ -3,12 +3,8 @@ const mongoose = require("mongoose");
 
 const ClientManagementSchema = new mongoose.Schema({
   clientName: { type: String, required: true },
-  industry: { type: String, required: true },
-  website: { type: String, required: true },
+   website: { type: String, required: true },
   clientAddress: { type: String, required: true },
-  TaxID_VATNumber: { type: String, required: true },
-  CSRCode: { type: String, required: true },
-  Status: { type: String, required: true },
 
   contactPersons: [{
     contactName: { type: String, required: true },
@@ -25,15 +21,7 @@ const ClientManagementSchema = new mongoose.Schema({
     billingContactName: { type: String, required: true },
     billingEmail: { type: String, required: true },
     billingPhone: { type: String, required: true },
-    currency: {
-      type: String,
-     required: true
-    },
-    preferredPaymentMethod: {
-      type: String,
-      required: true
-    },
-    _id:false
+
   }],
 
   shippingInformation: [{
