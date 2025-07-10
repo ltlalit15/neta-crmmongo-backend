@@ -89,8 +89,10 @@ const createUser = async (req, res) => {
   try {
     const {
       firstName, lastName, email, password, passwordConfirm,
-      phone, role, state, country, permissions, accessLevel, assign,
-      proposal, projects, jobs, tasks, reports, user, client, invoice, billing, dailylogs
+      phone, role, state, country, assign,
+      proposal, tasks, reports, user, client, dailylogs,
+      ['projects&jobs']: projectsAndJobs,
+      ['invoice&billing']: invoiceAndBilling
     } = req.body;
 
     // ✅ Required fields check
@@ -121,9 +123,6 @@ const createUser = async (req, res) => {
       profileImage = result.secure_url;
     }
 
-    const parsedPermissions = typeof permissions === 'string' ? JSON.parse(permissions) : permissions;
-    const parsedAccessLevel = typeof accessLevel === 'string' ? JSON.parse(accessLevel) : accessLevel;
-
     // ✅ Create new user
     const newUser = await User.create({
       firstName,
@@ -135,24 +134,20 @@ const createUser = async (req, res) => {
       state,
       country,
       assign,
-      profileImage,
-      permissions: parsedPermissions,
-      accessLevel: parsedAccessLevel,
+      profileImage
     });
 
     // ✅ Create matching UserProposal document
     await UserProposal.create({
       userId: newUser._id,
       proposal,
-      projects,
-      jobs,
       tasks,
       reports,
       user,
       client,
-      invoice,
-      billing,
-      dailylogs
+      dailylogs,
+      ['projects&jobs']: projectsAndJobs,
+      ['invoice&billing']: invoiceAndBilling
     });
 
     // ✅ Generate token
@@ -482,9 +477,8 @@ const UpdateUser = async (req, res) => {
       'role',
       'state',
       'country',
-      'permissions',
       'assign',
-      'accessLevel'
+          
     ];
 
     const updateData = {};
