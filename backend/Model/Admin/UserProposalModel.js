@@ -1,5 +1,12 @@
 const mongoose = require("mongoose");
 
+const permissionSchema = new mongoose.Schema({
+  view: { type: String, default: false },
+  edit: { type: String, default: false },
+  create: { type: String, default: false },
+  delete: { type: String, default: false }
+}, { _id: false });
+
 const userProposalSchema = new mongoose.Schema({
 
     proposal: {
@@ -12,11 +19,7 @@ const userProposalSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    'projects&jobs': {
-        type: String,
-        required: true,
-         default: false,
-    },
+   projectsAndJobs: { type: permissionSchema, required: true, default: () => ({}) },
  
     tasks: {
         type: String,
@@ -38,11 +41,7 @@ const userProposalSchema = new mongoose.Schema({
         required: true,
         default: false
     },
-    'invoice&billing': {
-        type: String,
-        required: true,
-        default: false
-    },
+    invoiceAndBilling: { type: permissionSchema, required: true, default: () => ({}) },
    
     dailylogs: {
         type: String,
