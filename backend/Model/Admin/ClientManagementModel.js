@@ -24,26 +24,6 @@ const ClientManagementSchema = new mongoose.Schema({
 
   }],
 
-  shippingInformation: [{
-    shippingAddress: { type: String, required: true },
-    shippingContactName: { type: String, required: true },
-    shippingEmail: { type: String, required: true },
-    shippingPhone: { type: String, required: true },
-    preferredShippingMethod:{ type: String, required: true },
-    specialInstructions: { type: String, required: true },
-    _id:false
-  }],
-
-  financialInformation: [{
-    annualRevenue: { type: Number, required: true },
-    creditRating: { type: String, required: true },
-    bankName: { type: String, required: true },
-    accountNumber: { type: String, required: true },
-    fiscalYearEnd: { type: Date, required: true },
-    financialContact: { type: String, required: true },
-    _id:false
-  }],
-
   ledgerInformation: [{
     accountCode: { type: String, required: true },
     accountType: {
