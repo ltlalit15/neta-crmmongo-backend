@@ -91,8 +91,8 @@ const createUser = async (req, res) => {
       firstName, lastName, email, password, passwordConfirm,
       phone, role, state, country, assign,
       proposal, tasks, reports, user, client, dailylogs,
-      ['projects&jobs']: projectsAndJobs,
-      ['invoice&billing']: invoiceAndBilling
+      projectsAndJobs,
+      invoiceAndBilling
     } = req.body;
 
     // ✅ Required fields check
@@ -123,7 +123,7 @@ const createUser = async (req, res) => {
       profileImage = result.secure_url;
     }
 
-    // ✅ Create new user
+    // ✅ Create user
     const newUser = await User.create({
       firstName,
       lastName,
@@ -137,7 +137,11 @@ const createUser = async (req, res) => {
       profileImage
     });
 
-    // ✅ Create matching UserProposal document
+    // ✅ Parse nested permission objects if sent as string
+    const parsedProjectsAndJobs = typeof projectsAndJobs === 'string' ? JSON.parse(projectsAndJobs) : projectsAndJobs;
+    const parsedInvoiceAndBilling = typeof invoiceAndBilling === 'string' ? JSON.parse(invoiceAndBilling) : invoiceAndBilling;
+
+    // ✅ Create related UserProposal doc
     await UserProposal.create({
       userId: newUser._id,
       proposal,
@@ -146,11 +150,10 @@ const createUser = async (req, res) => {
       user,
       client,
       dailylogs,
-      ['projects&jobs']: projectsAndJobs,
-      ['invoice&billing']: invoiceAndBilling
+      projectsAndJobs: parsedProjectsAndJobs,
+      invoiceAndBilling: parsedInvoiceAndBilling
     });
 
-    // ✅ Generate token
     const token = genretToken(newUser._id);
 
     res.status(201).json({
