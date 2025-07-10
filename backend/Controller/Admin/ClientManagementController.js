@@ -101,12 +101,8 @@ const ClientCreate = asyncHandler(async (req, res) => {
     try {
       const allowedFields = [
         'clientName',
-        'industry',
         'website',
         'clientAddress',
-        'TaxID_VATNumber',
-        'CSRCode',
-        'Status',
         'contactPersons',
         'billingInformation',
         'shippingInformation',
