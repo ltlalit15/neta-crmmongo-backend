@@ -91,11 +91,10 @@ const createUser = async (req, res) => {
       firstName, lastName, email, password, passwordConfirm,
       phone, role, state, country, assign,
       proposal, tasks, reports, user, client, dailylogs,
-      projectsAndJobs,
-      invoiceAndBilling
+      projectsAndJobs, invoiceAndBilling
     } = req.body;
 
-    // ✅ Required fields check
+    // Required field validation
     const requiredFields = { firstName, lastName, email, password, passwordConfirm, phone, role, state, country, assign };
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value || value.toString().trim() === '') {
@@ -114,6 +113,7 @@ const createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Upload profile image if available
     let profileImage = '';
     if (req.files && req.files.image) {
       const result = await cloudinary.uploader.upload(req.files.image.tempFilePath, {
@@ -123,7 +123,7 @@ const createUser = async (req, res) => {
       profileImage = result.secure_url;
     }
 
-    // ✅ Create user
+    // Create user
     const newUser = await User.create({
       firstName,
       lastName,
@@ -137,29 +137,37 @@ const createUser = async (req, res) => {
       profileImage
     });
 
-    // ✅ Parse nested permission objects if sent as string
-    const parsedProjectsAndJobs = typeof projectsAndJobs === 'string' ? JSON.parse(projectsAndJobs) : projectsAndJobs;
-    const parsedInvoiceAndBilling = typeof invoiceAndBilling === 'string' ? JSON.parse(invoiceAndBilling) : invoiceAndBilling;
+    // Parse permission objects from form-data JSON
+    const parsedProposal = JSON.parse(proposal || '{}');
+    const parsedProjectsAndJobs = JSON.parse(projectsAndJobs || '{}');
+    const parsedTasks = JSON.parse(tasks || '{}');
+    const parsedReports = JSON.parse(reports || '{}');
+    const parsedUser = JSON.parse(user || '{}');
+    const parsedClient = JSON.parse(client || '{}');
+    const parsedInvoiceAndBilling = JSON.parse(invoiceAndBilling || '{}');
+    const parsedDailylogs = JSON.parse(dailylogs || '{}');
 
-    // ✅ Create related UserProposal doc
+    // Create UserProposal document
     await UserProposal.create({
       userId: newUser._id,
-      proposal,
-      tasks,
-      reports,
-      user,
-      client,
-      dailylogs,
+      proposal: parsedProposal,
       projectsAndJobs: parsedProjectsAndJobs,
-      invoiceAndBilling: parsedInvoiceAndBilling
+      tasks: parsedTasks,
+      reports: parsedReports,
+      user: parsedUser,
+      client: parsedClient,
+      invoiceAndBilling: parsedInvoiceAndBilling,
+      dailylogs: parsedDailylogs
     });
 
+    // Generate token
     const token = genretToken(newUser._id);
 
     res.status(201).json({
       status: 'success',
       data: { user: newUser, token }
     });
+
   } catch (err) {
     console.error("Error creating user:", err);
     res.status(400).json({ status: false, message: err.message });
