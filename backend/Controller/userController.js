@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../Model/userModel');
 const cloudinary = require('../Config/cloudinary');
+const UserProposal = require('../Model/Admin/UserProposalModel');
 const nodemailer = require('nodemailer');
 const { encodeToken } = require("../middlewares/decodeToken")
 // Cloudinary config
@@ -18,13 +19,81 @@ const genretToken = (id) => {
 };
 
 // Register user
+// old code
+// const createUser = async (req, res) => {
+//   try {
+//     const {
+//       firstName, lastName, email, password, passwordConfirm,
+//       phone, role, state, country, permissions, accessLevel, assign
+//     } = req.body;
+
+//     const requiredFields = { firstName, lastName, email, password, passwordConfirm, phone, role, state, country, assign };
+//     for (const [key, value] of Object.entries(requiredFields)) {
+//       if (!value || value.toString().trim() === '') {
+//         return res.status(400).json({ status: false, message: `${key} is required` });
+//       }
+//     }
+
+//     if (password !== passwordConfirm) {
+//       return res.status(400).json({ status: false, message: 'Passwords do not match' });
+//     }
+
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).json({ message: "User already exists with same email" });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     let profileImage = '';
+//     if (req.files && req.files.image) {
+//       const result = await cloudinary.uploader.upload(req.files.image.tempFilePath, {
+//         folder: 'user_profiles',
+//         resource_type: 'image',
+//       });
+//       profileImage = result.secure_url;
+//     }
+
+//     const parsedPermissions = typeof permissions === 'string' ? JSON.parse(permissions) : permissions;
+//     const parsedAccessLevel = typeof accessLevel === 'string' ? JSON.parse(accessLevel) : accessLevel;
+
+//     const newUser = await User.create({
+//       firstName,
+//       lastName,
+//       email,
+//       phone,
+//       password: hashedPassword,
+//       role,
+//       state,
+//       country,
+//       assign,
+//       profileImage,
+//       permissions: parsedPermissions,
+//       accessLevel: parsedAccessLevel,
+//     });
+
+//     const token = genretToken(newUser._id);
+
+//     res.status(201).json({
+//       status: 'success',
+//       data: { user: newUser, token }
+//     });
+//   } catch (err) {
+//     res.status(400).json({ status: false, message: err.message });
+//   }
+// };
+
+
+// new code
 const createUser = async (req, res) => {
   try {
     const {
       firstName, lastName, email, password, passwordConfirm,
-      phone, role, state, country, permissions, accessLevel, assign
+      phone, role, state, country, permissions, accessLevel, assign,
+      proposal, projects, jobs, tasks, reports, user, client, invoice, billing, dailylogs
     } = req.body;
 
+    // ✅ Required fields check
     const requiredFields = { firstName, lastName, email, password, passwordConfirm, phone, role, state, country, assign };
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value || value.toString().trim() === '') {
@@ -55,6 +124,7 @@ const createUser = async (req, res) => {
     const parsedPermissions = typeof permissions === 'string' ? JSON.parse(permissions) : permissions;
     const parsedAccessLevel = typeof accessLevel === 'string' ? JSON.parse(accessLevel) : accessLevel;
 
+    // ✅ Create new user
     const newUser = await User.create({
       firstName,
       lastName,
@@ -70,6 +140,22 @@ const createUser = async (req, res) => {
       accessLevel: parsedAccessLevel,
     });
 
+    // ✅ Create matching UserProposal document
+    await UserProposal.create({
+      userId: newUser._id,
+      proposal,
+      projects,
+      jobs,
+      tasks,
+      reports,
+      user,
+      client,
+      invoice,
+      billing,
+      dailylogs
+    });
+
+    // ✅ Generate token
     const token = genretToken(newUser._id);
 
     res.status(201).json({
@@ -77,9 +163,11 @@ const createUser = async (req, res) => {
       data: { user: newUser, token }
     });
   } catch (err) {
+    console.error("Error creating user:", err);
     res.status(400).json({ status: false, message: err.message });
   }
 };
+
 
 // Login
 const loginUser = async (req, res) => {
