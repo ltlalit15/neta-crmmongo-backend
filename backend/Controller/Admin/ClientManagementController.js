@@ -16,8 +16,6 @@ const ClientCreate = asyncHandler(async (req, res) => {
     clientAddress,
     contactPersons,
     billingInformation,
-    shippingInformation,
-    financialInformation,
     ledgerInformation,
     additionalInformation
   } = req.body;
@@ -38,8 +36,6 @@ const ClientCreate = asyncHandler(async (req, res) => {
       clientAddress,
       contactPersons,
       billingInformation,
-      shippingInformation,
-      financialInformation,
       ledgerInformation,
       additionalInformation
     });
@@ -105,8 +101,6 @@ const ClientCreate = asyncHandler(async (req, res) => {
         'clientAddress',
         'contactPersons',
         'billingInformation',
-        'shippingInformation',
-        'financialInformation',
         'ledgerInformation',
         'additionalInformation'
       ];
