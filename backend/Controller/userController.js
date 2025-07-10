@@ -194,22 +194,29 @@ const loginUser = async (req, res) => {
     }
 
     const token = await genretToken(user._id);
-    console.log(token)
-    const encodeTokens = await encodeToken(token)
-    user.password = undefined;
+    const encodeTokens = await encodeToken(token);
+
+    // Remove password from response
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    // 🔐 Fetch permissions
+    const permissions = await UserProposal.findOne({ userId: user._id });
 
     res.status(200).json({
       status: 'success',
       message: 'Login successful',
       token: encodeTokens,
-      user
+      user: {
+        ...userObj,
+        permissions
+      }
     });
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ status: 'error', message: err.message });
   }
-
- // res.status(body)
 };
 
 // ✅ Email Function
