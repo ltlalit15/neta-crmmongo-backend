@@ -327,10 +327,20 @@ const resetPassword = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
+
+    // Attach permissions from UserProposal
+    const populatedUsers = await Promise.all(users.map(async user => {
+      const permissions = await UserProposal.findOne({ userId: user._id });
+      return {
+        ...user.toObject(),
+        permissions
+      };
+    }));
+
     res.status(200).json({
       status: 'success',
-      results: users.length,
-      data: { users }
+      results: populatedUsers.length,
+      data: { users: populatedUsers }
     });
   } catch (err) {
     res.status(400).json({ status: false, message: err.message });
@@ -488,67 +498,64 @@ const UpdateUser = async (req, res) => {
       'role',
       'state',
       'country',
-      'assign',
-          
+      'assign'
     ];
 
     const updateData = {};
-
-    // Handle allowed text fields
     allowedFields.forEach(field => {
       if (req.body[field] !== undefined) {
-        if ((field === 'permissions' || field === 'accessLevel') && typeof req.body[field] === 'string') {
-          try {
-            updateData[field] = JSON.parse(req.body[field]);
-          } catch (err) {
-            console.warn(`Failed to parse ${field}:`, req.body[field]);
-            updateData[field] = req.body[field];
-          }
-        } else {
-          updateData[field] = req.body[field];
-        }
+        updateData[field] = req.body[field];
       }
     });
 
+    // Upload profile image if provided
     let imageFile = req.body.profileImage || '';
-    // ✅ Fix: Upload profileImage if available
     if (req.files && req.files.profileImage) {
       try {
-        console.log("Image received:", req.files.profileImage); // 👈 Debug log
         imageFile = req.files.profileImage;
-
         const uploadResult = await cloudinary.uploader.upload(imageFile.tempFilePath, {
           folder: 'user_profiles',
           resource_type: 'image'
         });
-
-        console.log("Cloudinary upload success:", uploadResult.secure_url); // 👈 Debug log
         updateData.profileImage = uploadResult.secure_url;
       } catch (uploadError) {
-        console.error('Image Upload Error:', uploadError);
         return res.status(500).json({ message: 'Image upload failed', error: uploadError });
       }
-    } else {
-      console.log("No image file received in request"); // 👈 Debug log
     }
 
-    if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({ message: 'At least one field must be provided for update' });
+    if (Object.keys(updateData).length === 0 && !req.body.proposal) {
+      return res.status(400).json({ message: 'At least one field or permission must be provided for update' });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
+    // Update User
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    if (!updatedUser) return res.status(404).json({ message: 'User not found' });
 
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
+    // Parse and update permissions if any
+    const userProposal = await UserProposal.findOne({ userId: updatedUser._id });
+
+    if (userProposal) {
+      const permissionFields = [
+        'proposal', 'tasks', 'reports', 'user', 'client',
+        'projectsAndJobs', 'invoiceAndBilling', 'dailylogs'
+      ];
+
+      permissionFields.forEach(field => {
+        if (req.body[field]) {
+          try {
+            userProposal[field] = JSON.parse(req.body[field]);
+          } catch (e) {
+            console.warn(`Invalid JSON for ${field}:`, req.body[field]);
+          }
+        }
+      });
+
+      await userProposal.save();
     }
 
     res.status(200).json({
       status: 'success',
-      data: updatedUser
+      data: { user: updatedUser, permissions: userProposal }
     });
 
   } catch (error) {
@@ -562,11 +569,26 @@ const UpdateUser = async (req, res) => {
 //TYPE:PUBLIC
 const SingleUser = async (req, res) => {
   try {
-    const SingleUser = await User.findById(req.params.id);
-    res.status(200).json(SingleUser)
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ status: false, message: "User not found" });
+    }
+
+    const permissions = await UserProposal.findOne({ userId: user._id });
+
+    const populatedUser = {
+      ...user.toObject(),
+      permissions
+    };
+
+    res.status(200).json({
+      status: 'success',
+      data: populatedUser
+    });
   } catch (error) {
-    res.status(404).json({ msg: "Can t Find Cost Estimate" })
+    console.error(error);
+    res.status(500).json({ status: false, message: "Server error", error });
   }
-}
+};
 
 module.exports = { createUser, loginUser, forgotPassword, resetPassword, getAllUsers, deleteUser, UpdateUser, SingleUser }
