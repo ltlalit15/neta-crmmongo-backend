@@ -25,6 +25,7 @@ const createProjects = asyncHandler(async (req, res) => {
     budgetAmount,
     currency,
     tempPoles,
+    projectAddress,
   } = req.body;
 
   try {
@@ -54,6 +55,7 @@ const createProjects = asyncHandler(async (req, res) => {
       budgetAmount,
       currency,
       tempPoles,
+      projectAddress,
     });
 
     const savedAssignment = await newAssignment.save();
@@ -132,6 +134,7 @@ const getAllProjects = async (req, res) => {
         'budgetAmount',
         'currency',
         'tempPoles',
+        'projectAddress',
       ];
       const updateData = {};
       allowedFields.forEach(field => {
