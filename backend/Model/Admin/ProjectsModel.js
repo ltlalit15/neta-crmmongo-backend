@@ -83,6 +83,10 @@ const ProjectsSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+   projectAddress: {
+    type: String,
+    required: true
+  },
   // totalTime :{
   //   type:String,
   //   require:true
